@@ -11,6 +11,7 @@ yum_package "ecryptfs-utils" do
 end
 
 directory "#{node[:ecryptfs][:mount]}" do
+  recursive true
   owner "root"
   group "root"
   mode "0755"  
