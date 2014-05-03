@@ -2,7 +2,6 @@
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
-#TODO might NOT need to use the node.set function if we don't need it for next time reboot - can use a new passphrase
 node.set_unless[:ecryptfs][:passphrase] = secure_password
 
 mount_pt = node[:ecryptfs][:mount]
