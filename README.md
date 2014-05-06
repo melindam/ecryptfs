@@ -54,35 +54,29 @@ Usage
     "recipe[ecryptfs]"
   ]
 }
-default_attributes(
-  { :ecryptfs => 
-    {  :mount_point => "/var/SecureDir" 
+override_attributes(
+   :ecryptfs => {  
+     :mount_point => "/var/SecureDir" 
     }
-} )
+)
+}
 ```
 
-#### ecryptfs::reboot
+#### ecryptfs::reboot_enabled
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[ecryptfs]",
-    "recipe[ecryptfs::reboot]"
+    "recipe[ecryptfs]"
    ]
+ override_attributes (
+  :ecryptfs => {
+    :reboot_enabled => true
+  }
+ )  
 }
 ```
-#### ecryptfs::secure_system
 
-```json
-{
-  "name":"my_node",
-  "run_list": [
-    "recipe[ecryptfs]",
-    "recipe[ecryptfs::reboot]",
-    "recipe[ecryptfs::secure_system]"
-   ]
-}
-```
 
 Contributing
 ------------
