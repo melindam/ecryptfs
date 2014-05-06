@@ -20,10 +20,11 @@ lower directory and private directory could be specified differently)
 Attributes
 ----------
 * `node['ecryptfs']['mount_point']` - System directory and mount point which is encrypted. 
+* `node['ecryptfs']['lower_directory'] ` - System file system or directory to house mount point. If nil, uses ['ecryptfs']['mount_point']
 * `node['ecryptfs']['passphrase']` - Choose your own, or chef will create a secure one for you.
   - highly recommend you choose one, then remove it from your role, or node and replace it only when you need to reboot
     your system. 
-
+* `node['ecryptfs']['reboot_enabled']` - Set this node variable in the role immediately before you want to reboot your system to allow for the auto mount of the file system to take place.
 
 Recipes
 -------
@@ -31,13 +32,12 @@ Recipes
 #### ecryptfs::default
 ecryptfs file system mount created, mounted, encrypted passphrase defined if one not given. See http://ecryptfs.org
 
-#### ecryptfs::reboot
+#### ecryptfs::reboot_enabled
 will prepare the secure passphrase and signature cache key in /root/ directory for auto-mount to take place when system 
-is rebooted manually.  These files are not in place if the system crashes, the passphrase will `MANUALLY` have to be entered, or 
-chef-client will have to be run manually, then the system can manually be rebooted for auto-mount to work.
+is manually rebooted.  These files are not on the system by default, and if the system crashes, the passphrase will `MANUALLY` have to be entered, or 
+the variable `node['ecryptfs]['reboot_enabled'] = true` must be set, and then run chef-client for auto-mount to work.
 
 #### ecryptfs::secure_system
-
 Include the recipe in your node's `runlist` when your system is finished rebooting and state of system should resume 
 encrypting the file system and remove auto-mount config files needed.  If added with the `ecryptfs::reboot` recipe, it will remove 
 that recipe and `ecryptfs::secure_system` from the node's runlist.

@@ -4,7 +4,6 @@
 #
 # Copyright 2014, melindam
 #
-# All rights reserved - Do Not Redistribute
 #
 yum_package "ecryptfs-utils" do
   action :install
@@ -18,12 +17,15 @@ directory "#{node[:ecryptfs][:mount]}" do
   action :create
 end
 
-node.set[:ecryptfs][:active] = true
-
 include_recipe 'ecryptfs::mount'
 
 # Make sure no residual files and recipes in the role exist for rebooting of the system
 # when we don't want to perform a reboot
-# If we want to reboot the system, include recipe in the role called ecryptfs::reboot_mount
+# If we want to reboot the system, set node variable [:ecryptfs][:reboot_enabled]
 
-#include_recipe 'ecryptfs::fix_mount'
+
+if [:ecryptfs][:reboot_enabled]
+  include_recipe 'ecryptfs::reboot_enabled'
+else    
+  include_recipe 'ecryptfs::secure_system'
+end

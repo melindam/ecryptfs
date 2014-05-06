@@ -6,6 +6,9 @@ This file is used to list changes made in each version of the jmh-ecryptfs cookb
 0.1.0
 -----
 - [Melinda Moran] - Initial release of ecryptfs
+0.1.1
+- [Melinda Moran] - Clean up logic to use node variable [:ecryptfs][:reboot_enabled] when want to manually reboot system
+    and have file system auto mount
 
 - - -
 Check the [Markdown Syntax Guide](http://daringfireball.net/projects/markdown/syntax) for help with Markdown.
