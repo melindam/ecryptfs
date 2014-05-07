@@ -2,15 +2,16 @@
 #TODO need to determine if a desire to have multiple encrypted mount points for the system
 
 mount_pt = node[:ecryptfs][:mount]
-lower_dir = node[:ecryptfs][:lower_directory] || node[:ecryptfs][:mount]
+lower_dir = node[:ecryptfs][:mount]
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
-if [:ecryptfs][:first_mount].nil?
-  node.set_unless[:ecryptfs][:passphrase] = secure_password 
-  passph = node[:ecryptfs][:passphrase]
+# Checks to see if the mount has been successful first time, otherwise don't get new passphrase
+if !(node[:ecryptfs][:first_mount])
+  node.set_unless[:ecryptfs][:passphrase] = secure_password   
 end
 
+passph = node[:ecryptfs][:passphrase]
  
 #TODO actually add entry every time mount (like hostsfile does), not just append to fstab 
 
@@ -28,12 +29,12 @@ ruby_block "get-signature" do
   action :nothing 
 end
 
+#TODO if the /root/.ecryptfsrc file exists and tries to mount after 2nd time, the mount failes
 # Mount command with all options available first time, or successive times if unmounted when reboot has not taken place. 
 # Passphrase is not kept on system, only could be seen on manual chef-client run.
 execute "mount-ecryptfs" do
   command "mount -t ecryptfs -o no_sig_cache,key=passphrase:passphrase_passwd='#{passph}',ecryptfs_cipher=aes,ecryptfs_key_bytes=16,ecryptfs_passthrough=n,ecryptfs_enable_filename_crypto=n #{lower_dir} #{mount_pt} > /tmp/sigFile.txt"  
   notifies :run, "ruby_block[get-signature]", :immediately
-  notifies :run, ""
   action :run
   only_if do (%x{df | grep #{mount_pt}}).empty? end
 end  

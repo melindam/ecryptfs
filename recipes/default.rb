@@ -24,7 +24,7 @@ include_recipe 'ecryptfs::mount'
 # If we want to reboot the system, set node variable [:ecryptfs][:reboot_enabled]
 
 
-if [:ecryptfs][:reboot_enabled]
+if node[:ecryptfs][:reboot_enabled]
   include_recipe 'ecryptfs::reboot_enabled'
 else    
   include_recipe 'ecryptfs::secure_system'
