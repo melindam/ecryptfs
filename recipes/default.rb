@@ -19,10 +19,8 @@ end
 
 include_recipe 'ecryptfs::mount'
 
-# Make sure no residual files and recipes in the role exist for rebooting of the system
-# when we don't want to perform a reboot
-# If we want to reboot the system, set node variable [:ecryptfs][:reboot_enabled]
-
+# Make sure no residual files exist for rebooting of the system when we don't want to perform a reboot
+# If we want to reboot the system, set node variable [:ecryptfs][:reboot_enabled] = true
 
 if node[:ecryptfs][:reboot_enabled]
   include_recipe 'ecryptfs::reboot_enabled'
