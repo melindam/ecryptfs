@@ -20,7 +20,7 @@ lower directory and private directory could be specified differently)
 Attributes
 ----------
 * `node['ecryptfs']['mount']` - System directory and mount point which is encrypted. 
-* `node['ecryptfs']['lower_directory'] ` - System file system or directory to house mount point. If nil, uses ['ecryptfs']['mount_point']
+* `node['ecryptfs']['lower_directory'] ` - System file system or directory to house mount point. If nil, uses `node['ecryptfs']['mount']`
 * `node['ecryptfs']['passphrase']` - Choose your own, or chef will create a secure one for you.
   - highly recommend you choose one, then remove it from your role, or node and replace it only when you need to reboot
     your system. 
@@ -41,9 +41,7 @@ must be set, and then run chef-client for auto-mount to work.
 
 #### ecryptfs::secure_system
 Include the recipe in your node's `runlist` when your system is finished rebooting and state of system should resume 
-encrypting the file system and remove auto-mount config files needed.  If added with the `ecryptfs::reboot` recipe, it
-will remove that recipe and `ecryptfs::secure_system` from the node's runlist.
-
+encrypting the file system and remove auto-mount config files needed. 
 
 Usage
 -----
@@ -56,12 +54,13 @@ Usage
     "recipe[ecryptfs]"
   ]
 }
+
 override_attributes(
    :ecryptfs => {  
      :mount => "/var/SecureDir" 
     }
 )
-}
+
 ```
 
 #### ecryptfs::reboot_enabled
@@ -71,13 +70,14 @@ override_attributes(
   "run_list": [
     "recipe[ecryptfs]"
    ]
+}
+   
  override_attributes (
   :ecryptfs => {
     :mount => "/var/SecureDir", 
     :reboot_enabled => true
   }
  )  
-}
 ```
 
 
