@@ -47,37 +47,34 @@ Usage
 -----
 
 #### ecryptfs::default
-```json
+```
 {
   "name":"my_node",
   "run_list": [
     "recipe[ecryptfs]"
   ]
 }
-
 override_attributes(
    :ecryptfs => {  
      :mount => "/var/SecureDir" 
     }
 )
-
 ```
 
 #### ecryptfs::reboot_enabled
-```json
+```
 {
   "name":"my_node",
   "run_list": [
     "recipe[ecryptfs]"
    ]
-}
-   
- override_attributes (
+}   
+override_attributes (
   :ecryptfs => {
     :mount => "/var/SecureDir", 
     :reboot_enabled => true
   }
- )  
+)  
 ```
 
 
