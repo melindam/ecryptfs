@@ -1,9 +1,9 @@
 default[:ecryptfs][:mount] = '/secure_mount'
-#default[:ecryptfs][:lower_directory] = nil
+default[:ecryptfs][:lower_directory] = '/secure_mount'
 
-#default[:ecryptfs][:passphrase] = nil
+#default[:ecryptfs][:passphrase] = 'ourSecurePassPhrase'
 
-default[:ecryptfs][:reboot_enabled] = false
+default[:ecryptfs][:reboot] = false
 default[:ecryptfs][:first_mount] = false
 
 default[:ecryptfs][:active] = true

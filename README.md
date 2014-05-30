@@ -6,25 +6,23 @@ Ecryptfs cookbook for encrypting a file system RHEL/CentOS only
 Requirements
 ------------
 Cookbook requirements needs a file system directory name to mount. 
-For true security replace the :passphrase with something you 
+For true security allow the :passphrase to be auto generated with OpenSSL Chef secure_passphrase call.
 
-(Future enhancements will be options like ecryptfs_key_bytes other than default 16, 
-lower directory and private directory could be specified differently)
+(Future enhancements will be options like ecryptfs_key_bytes other than default 16)
 
 #### cookbooks
 - `openssl` 
 
 #### packages
-- `ecryptfs-utils` - ecryptfs needs this package installed for RHEL
+- `ecryptfs-utils` - ecryptfs needs this package installed for RHEL/CentOS
 
 Attributes
 ----------
 * `node['ecryptfs']['mount']` - System directory and mount point which is encrypted. 
 * `node['ecryptfs']['lower_directory'] ` - System file system or directory to house mount point. If nil, uses `node['ecryptfs']['mount']`
 * `node['ecryptfs']['passphrase']` - Choose your own, or chef will create a secure one for you.
-  - highly recommend you choose one, then remove it from your role, or node and replace it only when you need to reboot
-    your system. 
-* `node['ecryptfs']['reboot_enabled']` - Set this node variable in the role immediately before you want to reboot your system to allow for the auto mount of the file system to take place.
+  - highly recommend remove it from your role, or node and replace it only when you need to reboot your system. 
+* `node['ecryptfs']['reboot']` - Set this node variable in the role immediately before you want to reboot your system to allow for the auto mount of the file system to take place.  Must manually remove the variable for the secure data to be removed from system.
 * `node['ecryptfs']['active']` - Default = true.  So other cookbooks know ecrypfs file system is available to the node.
 
 Recipes
@@ -33,20 +31,19 @@ Recipes
 #### ecryptfs::default
 ecryptfs file system mount created, mounted, encrypted passphrase defined if one not given. See http://ecryptfs.org
 
-#### ecryptfs::reboot_enabled
+#### ecryptfs::mount
 Prepares the secure passphrase and signature cache key in /root/ directory for auto-mount to take place when system 
-is manually rebooted.  These files are not on the system by default, and if the system crashes, the passphrase will 
-`MANUALLY` have to be entered for the file system to mount, or the variable `node['ecryptfs]['reboot_enabled'] = true` 
-must be set, and then run chef-client for auto-mount to work.
+is manually rebooted.  If the system crashes, file `/root/.ecryptfsrc` will have to be removed or the variable `node['ecryptfs]['reboot'] = true` must be set, 
+and then run chef-client for auto-mount to work.
+If the file system becomes unmounted without the `['reboot']` variable set, remove the file /root/.ecryptfsrc and
+re-run the chef-client, and it will automount. If the file `/root/.ecryptfsrc` is there, next chef run will fail - unable to mount with 
+bogus data in the .ecryptfsrc file.
 
-#### ecryptfs::secure_system
-Include the recipe in your node's `runlist` when your system is finished rebooting and state of system should resume 
-encrypting the file system and remove auto-mount config files needed. 
 
 Usage
 -----
 
-#### ecryptfs::default
+#### ecryptfs 
 ```
 {
   "name":"my_node",
@@ -56,12 +53,13 @@ Usage
 }
 override_attributes(
    :ecryptfs => {  
-     :mount => "/var/SecureDir" 
+     :mount => "/var/SecureDir",
+     :lower_directory "/var" 
     }
 )
 ```
 
-#### ecryptfs::reboot_enabled
+#### ecryptfs with system ready to be rebooted
 ```
 {
   "name":"my_node",
@@ -71,8 +69,9 @@ override_attributes(
 }   
 override_attributes (
   :ecryptfs => {
-    :mount => "/var/SecureDir", 
-    :reboot_enabled => true
+    :mount => "/var/SecureDir",
+    :lower_directory "/var", 
+    :reboot => true
   }
 )  
 ```

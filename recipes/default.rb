@@ -17,13 +17,19 @@ directory "#{node[:ecryptfs][:mount]}" do
   action :create
 end
 
+directory "#{node[:ecryptfs][:lower_directory]}" do
+  recursive true
+  owner "root"
+  group "root"
+  mode "0755"  
+  action :create
+end
+
 include_recipe 'ecryptfs::mount'
 
-# Make sure no residual files exist for rebooting of the system when we don't want to perform a reboot
-# If we want to reboot the system, set node variable [:ecryptfs][:reboot_enabled] = true
+# Make sure files exist for rebooting of the system but do not include the secure passphrase
+# If we want to reboot the system, set node variable [:ecryptfs][:reboot] = true
 
-if node[:ecryptfs][:reboot_enabled]
-  include_recipe 'ecryptfs::reboot_enabled'
-else    
-  include_recipe 'ecryptfs::secure_system'
-end
+#if node[:ecryptfs][:reboot]
+#  include_recipe 'ecryptfs::reboot'
+#end

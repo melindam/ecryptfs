@@ -1,8 +1,7 @@
 # creates mount for first time, if this file system was not mounted before use passphrase provided or create a passphrase
-#TODO need to determine if a desire to have multiple encrypted mount points for the system
 
 mount_pt = node[:ecryptfs][:mount]
-lower_dir = node[:ecryptfs][:mount]
+lower_dir = node[:ecryptfs][:lower_directory]
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
@@ -29,16 +28,53 @@ ruby_block "get-signature" do
   action :nothing 
 end
 
-#TODO if the /root/.ecryptfsrc file exists and tries to mount after 2nd time, the mount failes
-# Mount command with all options available first time, or successive times if unmounted when reboot has not taken place. 
-# Passphrase is not kept on system, only could be seen on manual chef-client run.
-execute "mount-ecryptfs" do
-  command "mount -t ecryptfs -o no_sig_cache,key=passphrase:passphrase_passwd='#{passph}',ecryptfs_cipher=aes,ecryptfs_key_bytes=16,ecryptfs_passthrough=n,ecryptfs_enable_filename_crypto=n #{lower_dir} #{mount_pt} > /tmp/sigFile.txt"  
-  notifies :run, "ruby_block[get-signature]", :immediately
-  action :run
-  only_if do (%x{df | grep #{mount_pt}}).empty? end
-end  
+# Mount command with all options available first time, or successive times if unmounted when reboot variable in place.  
+# Fail chef run if file system is unmounted and reboot variable not set so file not left on system with passphrase in it.
+# Passphrase is not kept on system, only could be seen on manual chef-client run 
+# Keep the generic file on system WITHOUT passphrase or ADD the passphrase/signature if :reboot variable set to "true"
+
+if (node[:ecryptfs][:reboot])
+  
+  template "/root/.ecryptfsrc" do
+    source "ecryptfsrc.erb"
+    mode "0600" 
+    action :create
+    backup false
+    #variables( :pph =>  node[:ecryptfs][:reboot] ? node[:ecryptfs][:passphrase] : "UnspecifiedPassphrase",
+    #           :sig => node[:ecryptfs][:reboot] ? node[:ecryptfs][:signature] : "UnspecifiedSignature") 
+    variables( :pph => node[:ecryptfs][:passphrase],
+               :sig => node[:ecryptfs][:signature]  
+    )
+  end
+  execute "remount_mount" do
+    command "mount #{mount_pt}"  
+    action :run
+    only_if do (%x{df | grep #{mount_pt}}).empty? end
+  end 
+   
+else
+    
+  execute "mount-ecryptfs" do
+    command "mount -t ecryptfs -o no_sig_cache,key=passphrase:passphrase_passwd=#{passph},ecryptfs_cipher=aes,ecryptfs_key_bytes=16,ecryptfs_passthrough=n,ecryptfs_enable_filename_crypto=n #{lower_dir} #{mount_pt} > /tmp/sigFile.txt"  
+    notifies :run, "ruby_block[get-signature]", :immediately
+    action :run
+    only_if do (%x{df | grep #{mount_pt}}).empty? end
+  end 
+  template "/root/.ecryptfsrc" do
+    source "ecryptfsrc.erb"
+    mode "0600" 
+    action :create
+    variables( :pph => "UnspecifiedPassphrase",
+               :sig => "UnspecifiedSignature" 
+    ) 
+  end 
+  
+end #if
+
 
 file "/tmp/sigFile.txt" do
   action :delete
 end
+
+
+

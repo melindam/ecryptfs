@@ -1,6 +1,6 @@
-key=passphrase:passphrase_passwd=<%= node[:ecryptfs][:passphrase] %>
-ecryptfs_sig=<%= node[:ecryptfs][:signature] %>
-ecryptfs_fnek_sig=<%= node[:ecryptfs][:signature] %>
+key=passphrase:passphrase_passwd=<%= @pph %>
+ecryptfs_sig=<%= @sig %>
+ecryptfs_fnek_sig=<%= @sig %>
 ecryptfs_cipher=aes
 ecryptfs_key_bytes=16
 ecryptfs_passthrough=n
