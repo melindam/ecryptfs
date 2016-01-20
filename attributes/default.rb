@@ -6,6 +6,6 @@ default['ecryptfs']['ecryptfs_enable_filename_crypto'] = 'n'
 
 #default['ecryptfs']['passphrase'] = 'ourSecurePassPhrase'
 
-default['ecryptfs']['reboot'] = true
+default['ecryptfs']['reboot'] = false
 
 default['ecryptfs']['active'] = true
